@@ -45,10 +45,15 @@ for i in range(1,parameter.how_many_times+1):
             samples_goal = samples.Extract_Pitch(goal_state[0],goal_state[1])
             state = np.reshape(state, [1, parameter.pitch_state_size,1])
 
+        elif (options.use_spectrogram and options.use_dense):
+            state = samples.Extract_Spectrogram(state[0], state[1])
+            samples_goal = samples.Extract_Spectrogram(goal_state[0], goal_state[1])
+            state = np.reshape(state, [parameter.spectrogram_length, parameter.spectrogram_state_size])
+
         elif (options.use_spectrogram and options.use_CNN):
             state = samples.Extract_Spectrogram(state[0], state[1])
             samples_goal = samples.Extract_Spectrogram(goal_state[0],goal_state[1])
-            state = np.reshape(state, [parameter.spectrogram_length, parameter.pitch_state_size, 1])
+            state = np.reshape(state, [parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
 
         else:
             state = samples.Extract_Raw_Data(state[0], state[1])
@@ -68,12 +73,18 @@ for i in range(1,parameter.how_many_times+1):
             next_state, reward, done = env.step(action,samples_goal)
             if(options.use_samples):
                 next_state = np.reshape(next_state, [1, parameter.sample_state_size])
-            if (options.use_dense and options.use_pitch):
+
+            if (options.use_pitch and options.use_dense):
                 next_state = np.reshape(next_state, [1, parameter.pitch_state_size])
-            if (options.use_CNN and options.use_pitch):
+
+            if (options.use_pitch and options.use_CNN):
                 next_state = np.reshape(next_state, [1, parameter.pitch_state_size,1])
-            if(options.use_spectrogram):
-                next_state = np.reshape(next_state, [parameter.spectrogram_length, parameter.pitch_state_size, 1])
+
+            if (options.use_spectrogram and options.use_dense):
+                next_state = np.reshape(next_state, [parameter.spectrogram_length, parameter.spectrogram_state_size])
+
+            if(options.use_spectrogram and options.use_CNN):
+                next_state = np.reshape(next_state, [parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
 
             agent.replay_memory(state, action, reward, next_state, done)
             state = next_state

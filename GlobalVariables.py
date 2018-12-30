@@ -2,8 +2,8 @@ class GlobalVariables :
 
     #options for running different experiments
     use_samples = 0
-    use_pitch = 1
-    use_spectrogram = 0
+    use_pitch = 0
+    use_spectrogram = 1
     use_raw_data = 0
 
     #Grid Size
