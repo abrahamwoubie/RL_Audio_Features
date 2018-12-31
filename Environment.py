@@ -85,29 +85,28 @@ class Environment:
         #         done=True
             if (options.use_samples):
                 samples_current=Extract.Extract_Samples(state_next[0],state_next[1])
-            elif (options.use_pitch):
+
+            if (options.use_pitch):
                 samples_current = Extract.Extract_Pitch(state_next[0], state_next[1])
-            elif (options.use_spectrogram):
+
+            if (options.use_spectrogram):
                 samples_current = Extract.Extract_Spectrogram(state_next[0], state_next[1])
-            else:
-                samples_current = Extract.Extract_Raw_Data(state_next[0], state_next[1])
+
 
             if(options.use_samples):
                 if (distance.euclidean(samples_goal, samples_current) == 0):
                     reward = 1
                     done = True
-            elif (options.use_pitch):
+
+            if (options.use_pitch):
                 if (distance.euclidean(samples_goal, samples_current) == 0):
                     reward = 1
                     done = True
-            elif(options.use_spectrogram):
+
+            if(options.use_spectrogram):
                 if (np.mean(samples_goal)==np.mean(samples_current)):
                     reward = 1
-                    done = True
-            else:
-                if (np.mean(samples_goal) == np.mean(samples_current)):
-                    reward = 1
-                    done = True
+
             # Update state
             self.state = state_next
             return samples_current, reward, done

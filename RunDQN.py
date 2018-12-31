@@ -35,29 +35,25 @@ for i in range(1,parameter.how_many_times+1):
             samples_goal = samples.Extract_Samples(goal_state[0],goal_state[1])
             state = np.reshape(state, [1, parameter.sample_state_size])
 
-        elif (options.use_pitch and options.use_dense):
+        if (options.use_pitch and options.use_dense):
             state = samples.Extract_Pitch(state[0], state[1])
             samples_goal = samples.Extract_Pitch(goal_state[0],goal_state[1])
             state = np.reshape(state, [1, parameter.pitch_state_size])
 
-        elif (options.use_pitch and options.use_CNN):
+        if (options.use_pitch and options.use_CNN):
             state = samples.Extract_Pitch(state[0], state[1])
             samples_goal = samples.Extract_Pitch(goal_state[0],goal_state[1])
             state = np.reshape(state, [1, parameter.pitch_state_size,1])
 
-        elif (options.use_spectrogram and options.use_dense):
+        if (options.use_spectrogram and options.use_dense):
             state = samples.Extract_Spectrogram(state[0], state[1])
             samples_goal = samples.Extract_Spectrogram(goal_state[0], goal_state[1])
             state = np.reshape(state, [parameter.spectrogram_length, parameter.spectrogram_state_size])
 
-        elif (options.use_spectrogram and options.use_CNN):
+        if (options.use_spectrogram and options.use_CNN):
             state = samples.Extract_Spectrogram(state[0], state[1])
             samples_goal = samples.Extract_Spectrogram(goal_state[0],goal_state[1])
             state = np.reshape(state, [parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
-
-        else:
-            state = samples.Extract_Raw_Data(state[0], state[1])
-            samples_goal = samples.Extract_Raw_Data(goal_state[0],goal_state[1])
 
         #state = np.reshape(state, [57788,2,1])
         iterations=0

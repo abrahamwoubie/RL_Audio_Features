@@ -2,16 +2,16 @@ class GlobalVariables :
 
     #options for running different experiments
     use_samples = 0
-    use_pitch = 0
-    use_spectrogram = 1
+    use_pitch = 1
+    use_spectrogram = 0
     use_raw_data = 0
 
     #Grid Size
-    nRow = 3
-    nCol = 3
+    nRow = 5
+    nCol = 5
 
-    use_dense=0
-    use_CNN=1
+    use_dense=1
+    use_CNN=0
 
     #parameters
     sample_state_size = 100

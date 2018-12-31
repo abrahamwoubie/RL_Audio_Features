@@ -41,11 +41,11 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(24, input_shape=(self.state_dim,), kernel_initializer='uniform', activation='softmax'))
-        model.add(Dense(24, activation='softmax', kernel_initializer='uniform'))
-        model.add(Dense(parameter.action_size, activation='linear'))
+        model.add(Dense(24, input_shape=(self.state_dim,), kernel_initializer='uniform', activation='relu'))
+        model.add(Dense(24, activation='relu', kernel_initializer='uniform'))
+        model.add(Dense(parameter.action_size, activation='softmax'))
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss='mean_squared_error', optimizer='sgd',metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer='sgd',metrics=['accuracy'])
         return model
 
     def _build_CNN_model(self):
@@ -55,7 +55,7 @@ class DQNAgent:
         model.add(Flatten())
         model.add(Dense(parameter.action_size, activation='softmax'))
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss='mean_squared_error', optimizer='sgd')
+        model.compile(loss='categorical_crossentropy', optimizer='sgd')
         return model
 
     def replay_memory(self, state, action, reward, next_state, done):
