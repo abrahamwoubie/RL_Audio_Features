@@ -53,8 +53,9 @@ for i in range(1,parameter.how_many_times+1):
         if (options.use_spectrogram and options.use_CNN):
             state = samples.Extract_Spectrogram(state[0], state[1])
             samples_goal = samples.Extract_Spectrogram(goal_state[0],goal_state[1])
-            state = np.reshape(state, [parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
+            state = np.reshape(state, [1,parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
 
+        #print(state.shape)
         #state = np.reshape(state, [57788,2,1])
         iterations=0
         Number_of_Episodes.append(episode)
@@ -80,7 +81,7 @@ for i in range(1,parameter.how_many_times+1):
                 next_state = np.reshape(next_state, [parameter.spectrogram_length, parameter.spectrogram_state_size])
 
             if(options.use_spectrogram and options.use_CNN):
-                next_state = np.reshape(next_state, [parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
+                next_state = np.reshape(next_state, [1,parameter.spectrogram_length, parameter.spectrogram_state_size, 1])
 
             agent.replay_memory(state, action, reward, next_state, done)
             state = next_state

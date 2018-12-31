@@ -10,8 +10,8 @@ class GlobalVariables :
     nRow = 5
     nCol = 5
 
-    use_dense=1
-    use_CNN=0
+    use_dense=0
+    use_CNN=1
 
     #parameters
     sample_state_size = 100
@@ -23,5 +23,5 @@ class GlobalVariables :
     batch_size = 32
     Number_of_episodes=100
     timesteps=(nRow+nCol+nRow)
-    how_many_times = 5 #How many times to run the same experiment
+    how_many_times = 2 #How many times to run the same experiment
 

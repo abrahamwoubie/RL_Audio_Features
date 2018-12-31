@@ -92,7 +92,6 @@ class Environment:
             if (options.use_spectrogram):
                 samples_current = Extract.Extract_Spectrogram(state_next[0], state_next[1])
 
-
             if(options.use_samples):
                 if (distance.euclidean(samples_goal, samples_current) == 0):
                     reward = 1
