@@ -9,6 +9,7 @@ import random
 import numpy as np
 from keras.layers import MaxPooling1D,GlobalAveragePooling1D,Dropout,LSTM,TimeDistributed,AveragePooling1D,Embedding,Activation
 
+
 parameter=GlobalVariables
 grid_size=GlobalVariables
 options=GlobalVariables
@@ -33,17 +34,24 @@ class DQNAgent:
         self.exploration_min = 0.01
         self.exploration_decay = 0.995
 
-        if(options.use_pitch and options.use_dense):
-            self.model = self.build_model()
+        # if(options.use_pitch and options.use_dense or options.use_samples):
+        #     self.model = self.build_model()
+        #
+        # if(options.use_pitch  and options.use_CNN):
+        #     self.model=  self.build_CNN_1D_model()
+        #
+        # if (options.use_spectrogram and options.use_dense):
+        #     self.model = self.build_model()
+        #
+        # if (options.use_spectrogram and options.use_CNN):
+        #     self.model = self.build_CNN_2D_model()
 
-        if(options.use_pitch  and options.use_CNN):
-            self.model=  self.build_CNN_1D_model()
-
-        if (options.use_spectrogram and options.use_dense):
-            self.model = self.build_model()
-
-        if (options.use_spectrogram and options.use_CNN):
-            self.model = self.build_CNN_2D_model()
+        if(options.use_dense):
+            self.model=self.build_model()
+        if(options.use_CNN_1D):
+            self.model=self.build_CNN_1D_model()
+        if(options.use_CNN_2D):
+            self.model=self.build_CNN_2D_model()
 
         print(self.model.summary())
 
@@ -68,14 +76,15 @@ class DQNAgent:
         return model
 
     def build_CNN_2D_model(self):
+        '''
         model = Sequential()
-        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
-        model.add(Conv2D(32, (3, 3), activation='relu'))
+        model.add(Conv2D(32, (2, 2), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        model.add(Conv2D(32, (2, 2), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.25))
 
-        model.add(Conv2D(64, (3, 3), activation='relu'))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(Conv2D(64, (2, 2), activation='relu'))
+        model.add(Conv2D(64, (2, 2), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.25))
 
@@ -84,6 +93,38 @@ class DQNAgent:
         model.add(Dropout(0.5))
         model.add(Dense(parameter.action_size, activation='softmax'))
 
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd)
+        return model
+        '''
+
+        # model = Sequential()
+        # model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        # model.add(Conv2D(64, (3, 3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        # model.add(Flatten())
+        # model.add(Dense(128, activation='relu'))
+        # model.add(Dropout(0.5))
+        # model.add(Dense(parameter.action_size, activation='softmax'))
+        # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        # model.compile(loss='categorical_crossentropy', optimizer=sgd)
+        # return model
+
+        model = Sequential()
+        model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
+        model.add(Convolution2D(64, 3, 3, border_mode='same'))
+
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
+
+        model.add(Flatten())
+        model.add(Dense(1024))
+        model.add(Activation('relu'))
+        model.add(Dense(4))
+        model.add(Activation('softmax'))
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         model.compile(loss='categorical_crossentropy', optimizer=sgd)
         return model

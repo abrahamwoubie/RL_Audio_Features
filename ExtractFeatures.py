@@ -39,7 +39,38 @@ class Extract_Features:
             spec_data = spec_data + row + col
         return spec_data
 
-    def Extract_Spectrogram1(row, col):
+    def Extract_MFCC(row,col):
+        import sys
+        from aubio import source, pvoc, mfcc
+        from numpy import vstack, zeros, diff
+
+        n_filters = 40  # must be 40 for mfcc
+        n_coeffs = 13
+
+        source_filename = 'Test.wav'
+        samplerate = 44100
+        win_s = 512
+        hop_s = 128
+
+        s = source(source_filename, samplerate, hop_s)
+        samplerate = s.samplerate
+        p = pvoc(win_s, hop_s)
+        m = mfcc(win_s, n_filters, n_coeffs, samplerate)
+
+        mfccs = zeros([n_coeffs, ])
+        frames_read = 0
+        while True:
+            samples, read = s()
+            spec = p(samples)
+            mfcc_out = m(spec)
+            mfccs = vstack((mfccs, mfcc_out))
+            frames_read += read
+            if read < hop_s: break
+        if (row == grid_size.nRow - 1 and grid_size == grid_size.nCol - 1):
+            mfccs=mfccs+100
+        return mfccs
+
+    def Extract_Spectrogram_Sinusoid(row, col):
         fs = 10e3
         N = 1e5
         amp = 2 * np.sqrt(2)
