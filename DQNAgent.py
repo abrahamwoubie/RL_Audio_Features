@@ -1,3 +1,7 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
+
+
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
@@ -98,35 +102,80 @@ class DQNAgent:
         return model
         '''
 
+        model = Sequential()
+        model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(parameter.action_size, activation='softmax'))
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd)
+        return model
+
         # model = Sequential()
-        # model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
-        # model.add(Conv2D(64, (3, 3), activation='relu'))
-        # model.add(MaxPooling2D(pool_size=(2, 2)))
-        # model.add(Dropout(0.25))
+        # model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        # model.add(Activation('relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
+        #
+        # model.add(Convolution2D(64, 3, 3, border_mode='same'))
+        # model.add(Activation('relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
+        #
         # model.add(Flatten())
-        # model.add(Dense(128, activation='relu'))
-        # model.add(Dropout(0.5))
-        # model.add(Dense(parameter.action_size, activation='softmax'))
+        #
+        # model.add(Dense(128))
+        # model.add(Activation('relu'))
+        # model.add(Dense(parameter.action_size))
+        # model.add(Activation('softmax'))
+        #
         # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         # model.compile(loss='categorical_crossentropy', optimizer=sgd)
         # return model
 
-        model = Sequential()
-        model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
-        model.add(Convolution2D(64, 3, 3, border_mode='same'))
+        # model = Sequential()
+        # model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        # model.add(Conv2D(32, (3, 3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        #
+        # model.add(Flatten())
+        # model.add(Dense(128, activation='relu'))
+        # model.add(Dropout(0.5))
+        #
+        # model.add(Dense(parameter.action_size, activation='softmax'))
+        #
+        # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        # model.compile(loss='categorical_crossentropy', optimizer=sgd)
+        # return model
 
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2),dim_ordering="tf"))
+        # model = Sequential()
+        # model.add(Conv2D(32, (3, 3), padding='same', activation='relu',
+        #                  input_shape=(parameter.spectrogram_length, parameter.spectrogram_state_size, 1)))
+        # model.add(Conv2D(32, (3, 3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        #
+        # model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+        # model.add(Conv2D(64, (3, 3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        #
+        # model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+        # model.add(Conv2D(64, (3, 3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        #
+        # model.add(Flatten())
+        # model.add(Dense(512, activation='relu'))
+        # model.add(Dropout(0.5))
+        # model.add(Dense(parameter.action_size, activation='softmax'))
+        #
+        # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        # model.compile(loss='categorical_crossentropy', optimizer=sgd)
 
-        model.add(Flatten())
-        model.add(Dense(1024))
-        model.add(Activation('relu'))
-        model.add(Dense(4))
-        model.add(Activation('softmax'))
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(loss='categorical_crossentropy', optimizer=sgd)
         return model
 
     def replay_memory(self, state, action, reward, next_state, done):
@@ -145,11 +194,19 @@ class DQNAgent:
             actions_greedy = actions_allowed[np.flatnonzero(Q_s == np.max(Q_s))]
             return np.random.choice(actions_greedy)
 
-    def act(self, state):
+    def act(self, state,env):
         if np.random.rand() <= self.epsilon:
             return random.randrange(parameter.action_size)
         act_values = self.model.predict(state)
         return np.argmax(act_values[0])  # returns action
+
+        # state = env.state;
+        # actions_allowed = env.allowed_actions()
+        # act_values = self.model.predict(state)
+        #
+        # actions_greedy = actions_allowed[np.flatnonzero(act_values == np.max(act_values))]
+        # return np.random.choice(actions_greedy)
+        #
 
 
     def replay(self, batch_size):

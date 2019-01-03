@@ -29,7 +29,8 @@ for i in range(1,parameter.how_many_times+1):
     for episode in range(1,parameter.Number_of_episodes+1):
         #file = open(filename, 'a')
         #done = False
-        state,goal_state,wall = env.reset()
+        #state,goal_state,wall = env.reset()
+        state, goal_state= env.reset()
 
         if (options.use_samples and options.use_dense):
             state=samples.Extract_Samples(state[0],state[1])
@@ -77,7 +78,7 @@ for i in range(1,parameter.how_many_times+1):
         #while not done:
             #print("Two")
             iterations+=1
-            action = agent.act(state)
+            action = agent.act(state,env)
             next_state, reward, done = env.step(action,samples_goal)
 
             if(options.use_samples and options.use_dense):

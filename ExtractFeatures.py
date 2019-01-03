@@ -9,6 +9,10 @@ from scipy.fftpack import dct
 from pydub import AudioSegment
 import librosa # library for audio processing
 from GlobalVariables import  GlobalVariables
+
+from aubio import pvoc, source, float_type
+from numpy import zeros, log10, vstack
+
 grid_size=GlobalVariables
 class Extract_Features:
 
@@ -20,16 +24,40 @@ class Extract_Features:
         f = 2  # the frequency of the signal
 
         x = np.arange(fs)  # the points on the x axis for plotting
-
+        samples = [np.sin(2 * np.pi * f * (i / fs)) for i in x]
         # compute the value (amplitude) of the sin wave at the for each sample
         # if letter in b'G':
-        if(row==grid_size.nRow and col==grid_size.nCol):
+        #if(row==grid_size.nRow-1 and col==grid_size.nCol-1):
+        if (row == 3 and col == 3):
             samples = [100 + row + col + np.sin(2 * np.pi * f * (i / fs)) for i in x]
         else:
-            samples = [row + col + np.sin(2 * np.pi * f * (i / fs)) for i in x]
+            samples = [np.sin(2 * np.pi * f * (i / fs)) for i in x]
         return samples
 
     def Extract_Spectrogram(row,col):
+        filename = 'Test.wav'
+        samplerate = 0
+        win_s = 512  # fft window size
+        hop_s = win_s // 2  # hop size
+        fft_s = win_s // 2 + 1  # spectrum bins
+
+        a = source(filename, samplerate, hop_s)  # source file
+        if samplerate == 0: samplerate = a.samplerate
+        pv = pvoc(win_s, hop_s)  # phase vocoder
+        specgram = zeros([0, fft_s], dtype=float_type)  # numpy array to store spectrogram
+
+        # analysis
+        while True:
+            samples, read = a()  # read file
+            specgram = vstack((specgram, pv(samples).norm))  # store new norm vector
+            if read < a.hop_size: break
+        if (row == grid_size.nRow - 1 and grid_size == grid_size.nCol - 1):
+            specgram=specgram+100
+        #else:
+            #specgram=specgram+row+col
+        return specgram
+
+    def Extract_Spectrogram11(row,col):
         sample_rate, data = scipy.io.wavfile.read('Test.wav')
         # Spectrogram of .wav file
         sample_freq, segment_time, spec_data = signal.spectrogram(data, sample_rate)
@@ -153,7 +181,7 @@ class Extract_Features:
             if (row == grid_size.nRow - 1 and grid_size == grid_size.nCol - 1):
                 pitch = pitch_o(samples)[0] + 100
             else:
-                pitch = pitch_o(samples)[0] + row + col
+                pitch = pitch_o(samples)[0]
             # pitch = int(round(pitch))
             confidence = pitch_o.get_confidence()
             # if confidence < 0.8: pitch = 0.
